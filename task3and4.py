@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
 
-# Constants (from Toro et al.)
+#constants (from Toro et al.)
 f = 1.7
 gamma = 1
 epsilon = 10
