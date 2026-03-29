@@ -1,6 +1,8 @@
+#LOWKEY DOES NOT ANSWER Q6, IDK IF THIS CODE HELPS OR NOT ACTUALLY
+
 import numpy as np
 
-#fixed parameters
+#fixed system parameters (from earlier tasks / paper)
 Tss = 302.6513
 Css = 1.3316
 
@@ -9,14 +11,16 @@ A = 4.13e8
 R = 8.314
 Ea = 65.4e3
 
-#baseline values (from your system)
+#baseline conditions
 m = 100
 F_base = 1
 Cp_base = 4200
 L_base = 700
 
-#function to compute system behavior
-def compute_system(L, F, Cp):
+
+#function to compute gain and tau
+def system_response(L, F, Cp):
+    
     exp_term = np.exp(-Ea / (R * Tss))
 
     a11 = -A * exp_term - F
@@ -42,7 +46,7 @@ def compute_system(L, F, Cp):
 # -----------------------------
 print("\nchanging L (cooling strength):")
 for L in [700, 1000, 1500, 2000]:
-    gain, tau = compute_system(L, F_base, Cp_base)
+    gain, tau = system_response(L, F_base, Cp_base)
     print(f"L = {L} -> tau = {tau:.4f}, gain = {gain:.3e}")
 
 
@@ -51,7 +55,7 @@ for L in [700, 1000, 1500, 2000]:
 # -----------------------------
 print("\nchanging F (flow rate):")
 for F in [0.5, 1, 2, 3]:
-    gain, tau = compute_system(L_base, F, Cp_base)
+    gain, tau = system_response(L_base, F, Cp_base)
     print(f"F = {F} -> tau = {tau:.4f}, gain = {gain:.3e}")
 
 
@@ -60,5 +64,5 @@ for F in [0.5, 1, 2, 3]:
 # -----------------------------
 print("\nchanging Cp (thermal buffering):")
 for Cp in [2000, 4200, 8000]:
-    gain, tau = compute_system(L_base, F_base, Cp)
+    gain, tau = system_response(L_base, F_base, Cp)
     print(f"Cp = {Cp} -> tau = {tau:.4f}, gain = {gain:.3e}")
