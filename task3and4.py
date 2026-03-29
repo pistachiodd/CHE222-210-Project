@@ -17,8 +17,8 @@ tau_eval = np.linspace(0, 0.5, 1000)
 theta0 = 0.0335
 Y0 = [1, theta0]
 
-# Heat transfer values
-Lvalues = [1700, 1600, 1590, 1588, 1587.4, 1587.3, 700]
+# Heat transfer values, 700 is done individually
+Lvalues = [1700, 1600, 1590, 1588, 1587.4, 1587.3]
 
 # Store results
 results_matrix = []
@@ -43,15 +43,13 @@ for L in Lvalues:
     tau = sol.t
     Y = sol.y.T  # transpose to match MATLAB shape
 
-    # Apply trimming logic
-    ''''''
-    if L == 700:
-        valid = tau <= 0.08
+    results_matrix.append((tau, Y))
 
-    else:
-        valid = np.ones_like(tau, dtype=bool)
-
-    results_matrix.append((tau[valid], Y[valid]))
+L = 700
+sol = solve_ivp(task3n4func, tau_span, Y0, args=(f, gamma, epsilon, ThetaA, L, ThetaS), t_eval=tau_eval, method='BDF')
+tau = sol.t
+Y = sol.y.T
+results_matrix.append((tau,Y))
 
 # -----------------------------
 # Plot 1: Concentration (u vs τ)
