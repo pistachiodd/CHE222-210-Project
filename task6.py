@@ -40,14 +40,13 @@ gain = a12 * b2
 
 tau = np.sqrt(1 / (a11 * a22 - a12 * a21))
 
-# Display results
-print(
-    "Transfer Function Coefficients:\n"
-    f"a11 = {a11:.4e}\n"
-    f"a12 = {a12:.4e}\n"
-    f"a21 = {a21:.4e}\n"
-    f"a22 = {a22:.4e}\n"
-    f"b2  = {b2:.4e}\n\n"
-    f"System Gain = {gain:.4e}\n"
-    f"Time Constant (Tau) = {tau:.4f} s\n"
-)
+
+print("transfer function coefficients:")
+print("a11 =", a11)
+print("a12 =", a12)
+print("a21 =", a21)
+print("a22 =", a22)
+print("b2  =", b2)
+
+print("\nsystem gain =", gain)
+print("time constant (tau) =", tau)
