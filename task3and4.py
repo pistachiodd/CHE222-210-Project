@@ -21,7 +21,7 @@ Y0 = [1, theta0]
 Lvalues = [1700, 1600, 1590, 1588, 1587.4, 1587.3]
 
 #store results
-results_matrix = []
+results = []
 
 #ODE system
 def task3n4func(tau, y, f, gamma, epsilon, theta_a, l_value, theta_s):
@@ -43,7 +43,7 @@ for L in Lvalues:
     sol = solve_ivp(task3n4func, tau_span, Y0, args=(f, gamma, epsilon, ThetaA, L, ThetaS), t_eval=tau_eval, method='BDF') #BDF is a stiff solver
     tau = sol.t
     Y = sol.y
-    results_matrix.append((tau, Y))
+    results.append((tau, Y))
 
 #solve separately for L = 700 (simulates heat removal conditions during the disaster)
 L_700 = 700
@@ -56,7 +56,7 @@ Y_700 = sol_700.y
 # -----------------------------
 plt.figure()
 for i, L in enumerate(Lvalues):
-    tau_i, data = results_matrix[i]
+    tau_i, data = results[i]
     plt.plot(tau_i, data[0, :], label=f'L = {L}', linewidth=1.5)
 
 plt.plot(tau_700, Y_700[0, :], label='L = 700', linewidth=1.5)
