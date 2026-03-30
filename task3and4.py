@@ -74,7 +74,7 @@ plt.xlim([0, 0.5])
 # -----------------------------
 plt.figure()
 for i, L in enumerate(Lvalues):
-    tau_i, data = results_matrix[i]
+    tau_i, data = results[i]
     plt.plot(tau_i, data[1, :], label=f'L = {L}', linewidth=1.5)
 
 plt.plot(tau_700, Y_700[1, :], label='L = 700', linewidth=1.5)
