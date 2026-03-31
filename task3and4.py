@@ -7,14 +7,15 @@ f = 1.7
 gamma = 1
 epsilon = 10
 ThetaA = 0.0379  # original code used 0.0379
-ThetaS = 8.314 * 292 / 65400
+#ThetaS = 8.314 * 292 / 65400
+ThetaS = ThetaA
 
 # time span
 tau_span = (0, 0.5)  # simulate from tau = 0 to 0.5
 tau_eval = np.linspace(0, 0.5, 1000)
 
 # initial conditions
-theta0 = 0.03912   # this is also a problem, i have no clue what this should be 0.03912 words for 0.0379
+theta0 = 0.03912  # this is also a problem, i have no clue what this should be 0.03912 words for 0.0379
 Y0 = [1, theta0]
 
 # heat transfer values
@@ -44,7 +45,7 @@ def task3n4func(tau, y, f, gamma, epsilon, theta_a, l_value, theta_s):
 # solve ODEs for main L values
 for L in Lvalues:
     sol = solve_ivp(task3n4func, tau_span, Y0, args=(f, gamma, epsilon, ThetaA, L, ThetaS), t_eval=tau_eval,
-                    method='BDF', rtol=1e-15,atol=1e-18)  # BDF is a stiff solver
+                    method='BDF',rtol=1e-15,atol=1e-18)  # BDF is a stiff solver
     tau = sol.t
     Y = sol.y
     results.append((tau, Y))
@@ -64,7 +65,7 @@ for i, L in enumerate(Lvalues):
     tau_i, data = results[i]
     plt.plot(tau_i, data[0, :], label=f'L = {L}', linewidth=1.5)
 
-plt.plot(tau_700, Y_700[0, :], label='L = 700', linewidth=1.5)
+#plt.plot(tau_700, Y_700[0, :], label='L = 700', linewidth=1.5)
 
 plt.xlabel(r'$\tau$')
 plt.ylabel('u')
@@ -72,7 +73,7 @@ plt.title('Dimensionless Concentration vs τ')
 plt.legend()
 plt.grid()
 #plt.ylim([0.6, 1])
-plt.xlim([0, 0.5])
+#plt.xlim([0, 0.5])
 
 # -----------------------------
 # TASK 4: Temperature (θ vs τ)
@@ -82,7 +83,7 @@ for i, L in enumerate(Lvalues):
     tau_i, data = results[i]
     plt.plot(tau_i, data[1, :], label=f'L = {L}', linewidth=1.5)
 
-plt.plot(tau_700, Y_700[1, :], label='L = 700', linewidth=1.5)
+#plt.plot(tau_700, Y_700[1, :], label='L = 700', linewidth=1.5)
 
 plt.xlabel(r'$\tau$')
 plt.ylabel(r'$\theta$')
@@ -90,6 +91,6 @@ plt.title('Dimensionless Temperature vs τ')
 plt.legend()
 plt.grid()
 #plt.ylim([0.0335, 0.042])
-plt.xlim([0, 0.2])
+#plt.xlim([0, 0.2])
 
 plt.show()
