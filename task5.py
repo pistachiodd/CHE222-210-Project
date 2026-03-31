@@ -26,6 +26,13 @@ for theta_a in theta_a_values:
         return system(t, y, theta_a) #this runs really slowly
     solution = solve_ivp(reaction_system, eval_time, initial_conditions)
 
-    plt.plot(solution.t, solution.y[1])
+    plt.plot(solution.t, solution.y[1], label=fr'$\theta_a = {theta_a}$')
+
+plt.xlabel(r'$\tau$ (Dimensionless Time)')
+plt.ylabel(r'$\theta$ (Dimensionless Temperature)')
+plt.title('Time Sensitivity of MIC Hydrolysis Process')
+
+plt.legend()
+#plt.grid()
 
 plt.show()
