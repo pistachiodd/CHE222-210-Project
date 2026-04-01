@@ -67,6 +67,6 @@ for theta_a in theta_a_values:
 
 plt.xlabel(r'$\tau$ (Dimensionless Time)')
 plt.ylabel(r'$\theta$ (Dimensionless Temperature)')
-plt.title('Time Sensitivity of MIC Hydrolysis Process')
+plt.title('Thermal Sensitivity of MIC Hydrolysis Process')
 plt.legend()
 plt.show()
