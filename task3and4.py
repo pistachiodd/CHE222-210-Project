@@ -156,6 +156,6 @@ plt.title('Dimensionless Temperature vs Time')
 plt.legend()
 plt.grid()
 plt.ylim([0.038, 0.046])
-plt.xlim([0, 0.5])
+plt.xlim([0, 0.2])
 
 plt.show()
