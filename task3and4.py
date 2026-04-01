@@ -52,6 +52,8 @@ for L in Lvalues:
 
 # solve separately for L = 700 (simulates heat removal conditions during the disaster)
 L_700 = 700
+tau_span = (0, 0.025)  # simulate from tau = 0 to 0.5
+tau_eval = np.linspace(0, 0.025, 1000)
 sol_700 = solve_ivp(task3n4func, tau_span, Y0, args=(f, gamma, epsilon, ThetaA, L_700, ThetaS), t_eval=tau_eval,
                     method='BDF')
 tau_700 = sol_700.t
@@ -65,15 +67,15 @@ for i, L in enumerate(Lvalues):
     tau_i, data = results[i]
     plt.plot(tau_i, data[0, :], label=f'L = {L}', linewidth=1.5)
 
-#plt.plot(tau_700, Y_700[0, :], label='L = 700', linewidth=1.5)
+plt.plot(tau_700, Y_700[0, :], label='L = 700', linewidth=1.5)
 
 plt.xlabel(r'$\tau$')
 plt.ylabel('u')
 plt.title('Dimensionless Concentration vs τ')
 plt.legend()
 plt.grid()
-#plt.ylim([0.6, 1])
-#plt.xlim([0, 0.5])
+plt.ylim([0.6, 1])
+plt.xlim([0, 0.5])
 
 # -----------------------------
 # TASK 4: Temperature (θ vs τ)
@@ -83,14 +85,14 @@ for i, L in enumerate(Lvalues):
     tau_i, data = results[i]
     plt.plot(tau_i, data[1, :], label=f'L = {L}', linewidth=1.5)
 
-#plt.plot(tau_700, Y_700[1, :], label='L = 700', linewidth=1.5)
+plt.plot(tau_700, Y_700[1, :], label='L = 700', linewidth=1.5)
 
 plt.xlabel(r'$\tau$')
 plt.ylabel(r'$\theta$')
 plt.title('Dimensionless Temperature vs τ')
 plt.legend()
 plt.grid()
-#plt.ylim([0.0335, 0.042])
-#plt.xlim([0, 0.2])
+plt.ylim([0.038, 0.046])
+plt.xlim([0, 0.2])
 
 plt.show()
