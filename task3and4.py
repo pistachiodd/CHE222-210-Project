@@ -38,10 +38,10 @@ results = []
 
 # ODE SYSTEM DEFINITION
 # This function defines the coupled mass and energy balances
-#
+
 # u = dimensionless concentration
 # θ = dimensionless temperature
-#
+
 # Returns:
 # du/dτ --> consumption of reactant
 # dθ/dτ --> change in temperature
