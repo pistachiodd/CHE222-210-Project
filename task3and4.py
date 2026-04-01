@@ -14,7 +14,6 @@ f = 1.7              # dimensionless flow rate
 gamma = 1            # dimensionless heat capacity ratio
 epsilon = 10         # heat generation parameter
 ThetaA = 0.0379      # ambient temperature (dimensionless)
-
 ThetaS = ThetaA      # assumed equal based on given model
 
 # SIMULATION DOMAIN, where τ represents dimensionless time
@@ -22,15 +21,15 @@ tau_span = (0, 0.5)
 tau_eval = np.linspace(0, 0.5, 1000)
 
 # INITIAL CONDITIONS
-# u = 1  --> initially pure reactant
-# theta0 --> slightly above ambient to initiate reaction
+    # u = 1  --> initially pure reactant
+    # theta0 --> slightly above ambient to initiate reaction
 theta0 = 0.03912
 Y0 = [1, theta0]
 
 # HEAT REMOVAL PARAMETERS
 # L controls heat removal strength:
-# - High L --> strong cooling 
-# - Low L  --> weak cooling 
+    # - High L --> strong cooling 
+    # - Low L  --> weak cooling 
 Lvalues = [1700, 1600, 1590, 1588, 1587.4, 1587.3]
 
 # Storage for simulation results
@@ -39,13 +38,11 @@ results = []
 
 # ODE SYSTEM DEFINITION
 # This function defines the coupled mass and energy balances
-
-# u = dimensionless concentration
-# θ = dimensionless temperature
-
+    # u = dimensionless concentration
+    # θ = dimensionless temperature
 # Returns:
-# du/dτ --> consumption of reactant
-# dθ/dτ --> change in temperature
+    # du/dτ --> consumption of reactant
+    # dθ/dτ --> change in temperature
 def task3n4func(tau, y, f, gamma, epsilon, theta_a, l_value, theta_s):
 
     u, theta = y
@@ -64,7 +61,7 @@ def task3n4func(tau, y, f, gamma, epsilon, theta_a, l_value, theta_s):
 
 
 # MAIN SIMULATIONS (TASK 3 & 4)
-# Solve ODEs for different heat removal values
+# Solve ODEs for different heat removal values (L)
 # BDF method is used because system is stiff due to exponential reaction term
 for L in Lvalues:
 
@@ -101,6 +98,7 @@ sol_700 = solve_ivp(
 tau_700 = sol_700.t
 Y_700 = sol_700.y
 
+#--------------------------------------------------------------------------
 
 # TASK 3: CONCENTRATION PROFILES
 # Plot u vs τ for all L values
@@ -121,6 +119,7 @@ plt.grid()
 plt.ylim([0.55, 1])
 plt.xlim([0, 0.5])
 
+#--------------------------------------------------------------------------
 
 # TASK 4: TEMPERATURE PROFILES
 # Plot θ vs τ for all L values
