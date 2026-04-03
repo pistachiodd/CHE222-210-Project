@@ -3,90 +3,110 @@
 # Name: Tony Huang
 # Student Number: 1010928702
 # -----------------------------------------------------------------
+
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.integrate import solve_ivp
 from scipy.signal import find_peaks
 
-# Parameters from the Bhopal incident
-f = 1.7
-epsilon = 10.0
-gamma = 1.0
-R = 8.314
+# System Parameters (from paper)
+f = 1.7                      # dimensionless flow rate
+epsilon = 10.0               # heat capacity ratio term
+gamma = 1.0                  # heat transfer scaling
+R = 8.314  
 E_a = 65400.0
 T_s = 292.0
-theta_s = (R * T_s) / E_a
-
-# FIX theta_a
-theta_a_fixed = 0.0379
+theta_s = (R * T_s) / E_a    # dimensionless activation temperature
+theta_a_fixed = 0.0379       # fixed ambient temperature
 
 
+# ode system (MIC hydrolysis model)
 def mic_sys(tau, state, l):
-    '''
-    (number, number, number) -> number
-    this is the ode system given in the paper
-    '''
     u, theta = state
-    # this has saved me a few errors
+
+    # prevent numerical blow-up if theta becomes extremely small
     if theta < 1e-4:
         rate = 0
     else:
+        # Arrhenius-type reaction rate 
         rate = np.exp(1 / theta_s - 1 / theta)
 
+    # Mass balance
     du = -u * rate + f * (1 - u)
-    dtheta = (u * rate + epsilon * f * (gamma * theta_a_fixed - theta)
-              - l * (theta - theta_a_fixed)) / epsilon
+
+    # Energy balance:
+    dtheta = (u * rate + epsilon * f * (gamma * theta_a_fixed - theta) - l * (theta - theta_a_fixed)) / epsilon
     return [du, dtheta]
 
 
-# Sweep l
+# PARAMETER SWEEP (BIFURCATION)
+# we vary the heat transfer coefficient (l) to control stability
 l_vals = np.linspace(600, 1800, 200)
 
-theta_steady = []
+# storage for results
+theta_steady = [] # stable steady states
 l_steady = []
-theta_max = []
-theta_min = []
+
+theta_max = [] # oscillation upper bound (limit cycle)
+theta_min = [] # oscillation lower bound
 l_osc = []
 
-tau_span = (0, 100)
+tau_span = (0, 100) # time span long enough to reach steady state or oscillations
 tau_eval = np.linspace(0, 100, 10000)
+
+# Initial condition 
 init_state = [1.0, 0.035]
 
-for l_val in l_vals:
-    sol = solve_ivp(mic_sys, tau_span, init_state, t_eval=tau_eval, args=(l_val,), method='Radau')
 
-    tails = int(0.7 * len(sol.t))  # looks at the steady state part of the solution only, is this equivalent to 4 tau?
+#------------------------------------------------------------------------------
+# MAIN LOOP
+for l_val in l_vals:
+
+    # solve ODE system for each value of l
+    sol = solve_ivp(mic_sys, tau_span, init_state, t_eval=tau_eval, args=(l_val,),method='Radau')
+
+    # only analyze the tail (steady-state behaviour)
+    tails = int(0.7 * len(sol.t))
     theta_ss = sol.y[1][tails:]
 
-    # used to detect an oscilation
     t_max = np.max(theta_ss)
     t_min = np.min(theta_ss)
 
-    # singifies an oscillation instead of a steady state value
+    # Detect oscillations
     if t_max - t_min > 1e-4:
-        peaks, _ = find_peaks(theta_ss, distance=50)  # shoutout to scipy for doing this automatically
+        # if variation exists --> system is oscillating
+
+        # find peaks and troughs (limit cycle envelope)
+        peaks, _ = find_peaks(theta_ss, distance=50)
         troughs, _ = find_peaks(-theta_ss, distance=50)
 
-        if len(peaks) > 0 and len(troughs) > 0:  # stores the peaks and trough that are automatically detected
+        if len(peaks) > 0 and len(troughs) > 0:
+            # store average max/min values (envelope of oscillation)
             theta_max.append(np.mean(theta_ss[peaks]))
             theta_min.append(np.mean(theta_ss[troughs]))
             l_osc.append(l_val)
-    else:  # no oscillation detected, just take average ss value
+
+    else: # steady state (no oscillation)
         theta_steady.append(np.mean(theta_ss))
         l_steady.append(l_val)
 
-# Plot the thing
+#------------------------------------------------------------------------------
+# plotting the bifurcation diagram
 plt.figure(figsize=(10, 6))
-plt.plot(l_steady, theta_steady, 'k.', markersize=6, label='Steady State')
-plt.plot(l_osc, theta_max, 'r.', markersize=4, label='Periodic Solution Max')
-plt.plot(l_osc, theta_min, 'b.', markersize=4, label='Periodic Solution Min')
-# close enough to the critical l value
-plt.axvline(x=743, color="grey", linestyle="--", label=r'Critical $\l$ Value')
 
-plt.xlabel(r'Heat transfer coefficient ($l$)')
-plt.ylabel(r'Dimensionless temperature ($\theta$)')
-plt.title(r'Bifurcation Diagram at $\theta_a = 0.0379$')
+# stable steady states
+plt.plot(l_steady, theta_steady, 'k.', markersize=6, label='Stable Steady State')
 
+# oscillation envelope (limit cycle)
+plt.plot(l_osc, theta_max, 'r.', markersize=4, label='Oscillation Max')
+plt.plot(l_osc, theta_min, 'b.', markersize=4, label='Oscillation Min')
+
+# approximate critical point (where behaviour changes)
+plt.axvline(x=743, color="grey", linestyle="--", label=r'Critical $\ell$ Value')
+
+plt.xlabel(r'Heat Transfer Parameter ($\ell$)')
+plt.ylabel(r'Dimensionless Temperature ($\theta$)')
+plt.title(r'Bifurcation Diagram: Effect of Heat Removal on Reactor Stability')
 plt.legend()
 plt.grid(True, linestyle='--', alpha=0.6)
 plt.tight_layout()
