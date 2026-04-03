@@ -1,3 +1,8 @@
+# -----------------------------------------------------------------
+# GROUP INFORMATION
+# Name: Tony Huang
+# Student Number: 1010928702
+# -----------------------------------------------------------------
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.integrate import solve_ivp
