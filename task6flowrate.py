@@ -8,7 +8,7 @@ from scipy.integrate import solve_ivp
 import matplotlib.pyplot as plt
 from scipy.signal import find_peaks
 
-# Parameters from the Bhopal incident
+# system parameters (from paper)
 l = 700
 epsilon = 10.0
 gamma = 1.0
@@ -19,71 +19,97 @@ theta_s = (R * T_s) / E_a
 theta_a_fixed = 0.0379
 
 
+# ode system (mic hydrolysis model)
 def mic_sys(tau, state, f):
-    '''
-    (number, number, number) -> number
-    this is the ode system given in the paper
-    '''
     u, theta = state
-    #this has saved me a few errors
+
+    # prevent numerical blow-up if theta becomes extremely small
     if theta < 1e-4:
         rate = 0
     else:
+        # Arrhenius-type reaction rate
         rate = np.exp(1 / theta_s - 1 / theta)
 
+    # Mass balance
     du = -u * rate + f * (1 - u)
+
+    # Energy balance
     dtheta = (u * rate + epsilon * f * (gamma * theta_a_fixed - theta)
               - l * (theta - theta_a_fixed)) / epsilon
     return [du, dtheta]
 
 
-# Sweep f
+# parameter sweep 
+# we vary the flow rate (f) to analyze its effect on system stability
 f_vals = np.linspace(0.5, 2, 100)
 
-theta_steady = []
+# storage for results
+theta_steady = [] # stable steady states
 f_steady = []
-theta_max = []
-theta_min = []
+
+theta_max = [] # oscillation upper bound (limit cycle)
+theta_min = [] # oscillation lower bound
 f_osc = []
 
-tau_span = (0, 100)
-#tau_eval = np.linspace(0, 100, 10000)
+tau_span = (0, 100) # time span long enough to reach steady state or oscillations
+
+# initial condition
 init_state = [1.0, 0.035]
 
+
+#------------------------------------------------------------------------------
+# MAIN LOOP
 for f in f_vals:
+
+    # solve ode system for each value of f
     sol = solve_ivp(mic_sys, tau_span, init_state, args=(f,), method='Radau')
 
-    tails = int(0.7 * len(sol.t)) #looks at the steady state part of the solution only, is this equivalent to 4 tau?
+    # only analyze the tail (steady-state behaviour)
+    tails = int(0.7 * len(sol.t))
     theta_ss = sol.y[1][tails:]
 
-#used to detect an oscilation
     t_max = np.max(theta_ss)
     t_min = np.min(theta_ss)
 
-#singifies an oscillation instead of a steady state value
+    # detect oscillations
     if t_max - t_min > 1e-4:
-        peaks, _ = find_peaks(theta_ss, distance=50) #shoutout to scipy for doing this automatically
+        # if variation exists --> system is oscillating
+
+        # find peaks and troughs (limit cycle envelope)
+        peaks, _ = find_peaks(theta_ss, distance=50)
         troughs, _ = find_peaks(-theta_ss, distance=50)
 
-        if len(peaks) > 0 and len(troughs) > 0: #stores the peaks and trough that are automatically detected
+        if len(peaks) > 0 and len(troughs) > 0:
+            # store average max/min values (envelope of oscillation)
             theta_max.append(np.mean(theta_ss[peaks]))
             theta_min.append(np.mean(theta_ss[troughs]))
             f_osc.append(f)
-    else: #no oscillation detected, just take average ss value
+
+    else: # steady state (no oscillation)
         theta_steady.append(np.mean(theta_ss))
         f_steady.append(f)
-    #continuing from previous solution for smoothness
-    init_state = [sol.y[0][-1],sol.y[1][-1]]
-# Plot the thing
-plt.figure(figsize=(10, 6))
-plt.plot(f_steady, theta_steady, 'k.', markersize=6, label='Steady State')
-plt.plot(f_osc, theta_max, 'r.', markersize=4, label='Periodic Solution Max')
-plt.plot(f_osc, theta_min, 'b.', markersize=4, label='Periodic Solution Min')
 
-plt.axvline(x=1.63, color='gray', linestyle='--', label="Critical f Value")
+    # continuing from previous solution for smoothness
+    init_state = [sol.y[0][-1], sol.y[1][-1]]
+
+
+#------------------------------------------------------------------------------
+# plotting the bifurcation diagram
+plt.figure(figsize=(10, 6))
+
+# stable steady states
+plt.plot(f_steady, theta_steady, 'k.', markersize=6, label='Stable Steady State')
+
+# oscillation envelope (limit cycle)
+plt.plot(f_osc, theta_max, 'r.', markersize=4, label='Oscillation Max')
+plt.plot(f_osc, theta_min, 'b.', markersize=4, label='Oscillation Min')
+
+# approximate critical point (where behaviour changes)
+plt.axvline(x=1.63, color='gray', linestyle='--', label=r'Critical $f$ Value')
+
 plt.xlabel(r'Dimensionless flow rate ($f$)')
 plt.ylabel(r'Dimensionless temperature ($\theta$)')
-plt.title(r'Bifurcation Diagram at $\theta_a = 0.0379$')
+plt.title(r'Bifurcation Diagram (Varying $f$) at $\theta_a = 0.0379$')
 
 plt.legend()
 plt.grid(True, linestyle='--', alpha=0.6)
