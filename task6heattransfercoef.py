@@ -106,7 +106,7 @@ plt.axvline(x=743, color="grey", linestyle="--", label=r'Critical $\ell$ Value')
 
 plt.xlabel(r'Heat Transfer Parameter ($\ell$)')
 plt.ylabel(r'Dimensionless Temperature ($\theta$)')
-plt.title(r'Bifurcation Diagram: Effect of Heat Removal on Reactor Stability')
+plt.title(r'Bifurcation Diagram (Varying $L$) at $\theta_a = 0.0379$')
 plt.legend()
 plt.grid(True, linestyle='--', alpha=0.6)
 plt.tight_layout()
